@@ -1,0 +1,9 @@
+project.private.config.json
+node_modules/
+.env
+.env.*
+*.log
+.DS_Store
+Thumbs.db
+work/
+backups/

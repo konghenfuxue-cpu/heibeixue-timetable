@@ -1,0 +1,13 @@
+{
+  "name": "heibeixue-timetable",
+  "version": "1.0.0",
+  "private": true,
+  "description": "黑背雪每日课表微信小程序",
+  "license": "MIT",
+  "scripts": {
+    "test": "node tests/schedule.test.js && node tests/pages.test.js && node tests/wxml.test.js && node tests/backup.test.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

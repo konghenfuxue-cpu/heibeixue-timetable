@@ -1,0 +1,41 @@
+{
+  "pages": [
+    "pages/today/index",
+    "pages/week/index",
+    "pages/settings/index"
+  ],
+  "window": {
+    "navigationBarTitleText": "黑背雪课表",
+    "navigationBarBackgroundColor": "#263e50",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#f5f8fb"
+  },
+  "tabBar": {
+    "color": "#627688",
+    "selectedColor": "#263e50",
+    "backgroundColor": "#ffffff",
+    "list": [
+      {
+        "pagePath": "pages/today/index",
+        "text": "今日",
+        "iconPath": "assets/tabbar/today.png",
+        "selectedIconPath": "assets/tabbar/today-active.png"
+      },
+      {
+        "pagePath": "pages/week/index",
+        "text": "整周",
+        "iconPath": "assets/tabbar/week.png",
+        "selectedIconPath": "assets/tabbar/week-active.png"
+      },
+      {
+        "pagePath": "pages/settings/index",
+        "text": "设置",
+        "iconPath": "assets/tabbar/settings.png",
+        "selectedIconPath": "assets/tabbar/settings-active.png"
+      }
+    ]
+  },
+  "style": "v2",
+  "lazyCodeLoading": "requiredComponents",
+  "sitemapLocation": "sitemap.json"
+}
