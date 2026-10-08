@@ -1,0 +1,5 @@
+{
+ "name":"recognize-timetable","version":"1.0.0","private":true,
+ "main":"index.js","engines":{"node":">=20"},
+ "dependencies":{"wx-server-sdk":"^3.0.1","pdf2json":"4.0.3","tencentcloud-sdk-nodejs-ocr":"^4.0.0"}
+}

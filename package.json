@@ -1,11 +1,11 @@
 {
   "name": "heibeixue-timetable",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "description": "黑背雪每日课表微信小程序",
   "license": "MIT",
   "scripts": {
-    "test": "node tests/schedule.test.js && node tests/pages.test.js && node tests/wxml.test.js && node tests/backup.test.js"
+    "test": "node tests/schedule.test.js && node tests/pages.test.js && node tests/wxml.test.js && node tests/backup.test.js && node tests/timetable-import.test.js && node tests/recognition-service.test.js && node tests/import-page.test.js"
   },
   "engines": {
     "node": ">=20"

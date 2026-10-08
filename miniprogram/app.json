@@ -2,7 +2,8 @@
   "pages": [
     "pages/today/index",
     "pages/week/index",
-    "pages/settings/index"
+    "pages/settings/index",
+    "pages/import/index"
   ],
   "window": {
     "navigationBarTitleText": "黑背雪课表",

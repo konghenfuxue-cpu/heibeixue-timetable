@@ -1,0 +1,26 @@
+<view class="page import-page">
+ <view class="eyebrow">IMPORT TIMETABLE</view><view class="title">自动识别课表</view>
+ <view class="muted">文字PDF优先直接提取；截图和扫描版可用OCR。识别后逐条核对，再保存。</view>
+ <view class="notice">当前学期：2026-09-14 至 2027-01-08。导入不会自动更改校历和作息。更换学期需要同时更新设置。</view>
+ <button class="primary" disabled="{{busy}}" bindtap="selectFile">从微信聊天选择 PDF / 图片</button>
+ <button class="secondary" disabled="{{busy}}" bindtap="selectImage">从相册或拍照识别</button>
+ <button class="secondary" disabled="{{busy}}" bindtap="connect">检查识别服务连接</button>
+ <view class="muted">使用前需按项目部署说明开通云环境；未配置时会提示，原课表不会受影响。</view>
+ <view wx:if="{{fileName}}" class="card"><view class="course">{{fileName}}</view><view class="muted">{{method}} · 共 {{courses.length}} 条候选排课</view><button wx:if="{{needOcr}}" class="secondary" disabled="{{busy}}" bindtap="ocr">改用 OCR 识别</button><view wx:if="{{pageCount > 1}}"><view class="muted">PDF共 {{pageCount}} 页；OCR每次识别一页，追加结果仍需去重核对。</view><input class="field" type="number" value="{{page}}" bindinput="pageInput" placeholder="要识别的页码"/><button class="secondary" disabled="{{busy}}" bindtap="appendPage">追加识别指定页</button></view></view>
+ <view wx:for="{{warnings}}" wx:key="*this" class="notice">{{item}}</view>
+ <view wx:if="{{courses.length}}" class="section">核对识别结果</view>
+ <view wx:for="{{courses}}" wx:key="index" class="card"><view class="row"><view class="section">第 {{index + 1}} 条</view><button class="close-button" data-index="{{index}}" bindtap="remove" disabled="{{busy}}">删除</button></view>
+  <input class="field" value="{{item.name}}" data-index="{{index}}" data-field="name" bindinput="edit" placeholder="课程名称" maxlength="100"/>
+  <view class="muted">星期：1—7，周一至周日；0 表示尚未确定</view><picker range="{{days}}" value="{{item.weekday}}" data-index="{{index}}" data-field="weekday" bindchange="edit"><view class="field">{{days[item.weekday]}} ▾</view></picker>
+  <view class="import-fields"><view><view class="muted">开始节次</view><input class="field" type="number" value="{{item.start}}" data-index="{{index}}" data-field="start" bindinput="edit"/></view><view><view class="muted">结束节次</view><input class="field" type="number" value="{{item.end}}" data-index="{{index}}" data-field="end" bindinput="edit"/></view></view>
+  <view class="import-fields"><view><view class="muted">起始教学周</view><input class="field" type="number" value="{{item.first}}" data-index="{{index}}" data-field="first" bindinput="edit"/></view><view><view class="muted">结束教学周</view><input class="field" type="number" value="{{item.last}}" data-index="{{index}}" data-field="last" bindinput="edit"/></view></view>
+  <picker range="{{parities}}" value="{{item.parityIndex}}" data-index="{{index}}" bindchange="parity"><view class="field">{{parities[item.parityIndex]}} ▾</view></picker>
+  <input class="field" value="{{item.room}}" data-index="{{index}}" data-field="room" bindinput="edit" placeholder="教室（可选）" maxlength="100"/>
+  <input class="field" value="{{item.teacher}}" data-index="{{index}}" data-field="teacher" bindinput="edit" placeholder="教师（可选）" maxlength="100"/>
+  <input class="field" value="{{item.campus}}" data-index="{{index}}" data-field="campus" bindinput="edit" placeholder="校区（可选）" maxlength="100"/>
+ </view>
+ <button class="secondary" disabled="{{busy}}" bindtap="add">手动补充一条课程</button>
+ <checkbox-group wx:if="{{courses.length}}" bindchange="confirm"><label class="muted"><checkbox value="checked" checked="{{confirmed}}"/>我已对照原课表核对全部课程、星期、节次和教学周</label></checkbox-group>
+ <button wx:if="{{courses.length}}" class="primary" disabled="{{busy || !confirmed}}" bindtap="save">保存核对后的课表</button>
+ <view class="muted">支持课程块含“(1-2节)1-17周(单/双)”的周课表。其他版式可能需要手动修正。可在设置的备份与恢复中撤销最近一次导入。</view>
+</view>

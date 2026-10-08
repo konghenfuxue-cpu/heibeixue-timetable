@@ -1,0 +1,38 @@
+const assert=require('node:assert/strict');
+const parser=require('../cloudfunctions/recognizeTimetable/parser');
+const catalog=require('../miniprogram/utils/catalog');
+const cells=[{RowTl:0,ColTl:1,Text:'星期一'},{RowTl:0,ColTl:2,Text:'星期二'},
+ {RowTl:1,ColTl:1,Text:'示例数学★\n(1-2节)1-17周/校区:主校区/场地:教学楼101/教师:示例教师/学分:3.0'},
+ {RowTl:1,ColTl:2,Text:'示例物理☆\n(3-4节)2-16周(双)/校区:主/场地:教学楼102/教师:教师乙/学分:2.0'}];
+const result=parser.fromTables([{Cells:cells}]);
+const newline=parser.parseColumn('课程甲\n(1-2节)1-17周\n教师:教师甲\n教室:A\n课程乙\n(3-4节)1-17周\n教师:教师乙\n教室:B',1);
+assert.equal(newline.length,2);assert.equal(newline[0].room,'A');assert.equal(newline[1].name,'课程乙');assert.equal(newline[1].room,'B');
+assert.equal(parser.parseColumn('大学英语：读写\n(1-2节)1-17周',1)[0].name,'大学英语：读写');
+const text=(x,y,s)=>({x,y,R:[{T:encodeURIComponent(s)}]});
+const pdf=parser.fromPdf({Pages:[{Texts:[text(8,1,'私人姓名和学号应排除'),...Array.from({length:7},(_,i)=>text(2+i*2,3,'星期'+'一二三四五六日'[i])),text(1.2,4,'示例数学★'),text(1.2,5,'(1-2节)1-17周/场地:A/教师:教师甲/学分:3.0')]},{Texts:[text(3.2,1,'示例英语★'),text(3.2,2,'(3-4节)1-17周(单)/学分:2.0')]}]});
+assert.equal(pdf.courses[0].name,'示例数学');assert.equal(pdf.courses[1].weekday,2);
+assert.equal(pdf.courses[1].parity,'odd');
+assert.equal(result.courses.length,2);assert.equal(result.courses[0].weekday,1);
+assert.equal(result.courses[1].parity,'even');assert.equal(result.courses[1].first,2);
+assert.equal(result.courses[0].room,'教学楼101');
+const split=parser.parseColumn('课程甲★\n(5-6节)1,3,5周/场地:A',3);
+assert.deepEqual(split.map(c=>[c.first,c.last]),[[1,1],[3,3],[5,5]]);
+assert.equal(parser.parseColumn('课程甲★\n(1-2节)1-17周(单)/学分:3\n课程乙☆\n(3-4节)2-16周(双)',1).length,2);
+assert.throws(()=>catalog.normalize({courses:[{name:'未核对',weekday:0,start:1,end:2,first:1,last:17,parity:'all'}]}));
+const values={};global.wx={getStorageSync:k=>values[k],setStorageSync:(k,v)=>{values[k]=JSON.parse(JSON.stringify(v));},removeStorageSync:k=>delete values[k]};
+const storage=require('../miniprogram/utils/storage'),schedule=require('../miniprogram/utils/schedule'),backup=require('../miniprogram/utils/backup');
+const original=storage.read();storage.importTimetable({courses:result.courses,pending:[]});
+assert.equal(schedule.daySchedule('2026-09-14').courses[0].name,'示例数学');
+assert.equal(schedule.daySchedule('2026-09-22').courses[0].name,'示例物理');
+assert(!schedule.daySchedule('2026-09-15').courses.length);
+assert.equal(backup.decode(backup.encode(storage.read())).timetable.courses.length,2);
+storage.save({overrides:{'2026-09-14':{type:'off',note:'停课'}},changes:{}});
+assert(storage.read().timetable);assert(!schedule.daySchedule('2026-09-14',storage.read().overrides).courses.length);
+storage.undoImport();assert.deepEqual(storage.read(),original);
+const before=JSON.stringify(storage.read());assert.throws(()=>storage.importTimetable({courses:[]}));assert.equal(JSON.stringify(storage.read()),before);
+assert(!backup.decode(JSON.stringify({format:backup.FORMAT,version:1,term:backup.TERM,overrides:{},changes:{}})).timetable);
+storage.importTimetable({courses:result.courses,pending:[]});
+storage.importBackup(JSON.stringify({format:backup.FORMAT,version:1,term:backup.TERM,overrides:{},changes:{}}));
+assert(!storage.read().timetable);assert.notEqual(schedule.daySchedule('2026-09-14').courses[0].name,'示例数学');
+storage.undoImport();assert.equal(schedule.daySchedule('2026-09-14').courses[0].name,'示例数学');
+console.log('自动识别解析、字段校验、课程切换、完整备份、撤销与旧备份兼容通过');

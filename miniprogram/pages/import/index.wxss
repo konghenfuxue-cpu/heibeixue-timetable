@@ -1,0 +1,1 @@
+.import-page{padding-top:28rpx}.import-fields{display:flex;gap:20rpx}.import-fields>view{flex:1;min-width:0}.import-page .card .section{margin:0;border:0;padding:0}.import-page .card .section::after{display:none}

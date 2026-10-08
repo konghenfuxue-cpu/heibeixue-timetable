@@ -1,4 +1,4 @@
-const {courses}=require('../data/courses');
+const catalog=require('./catalog');
 const DAY=86400000;
 const START='2026-09-14';
 const END='2027-01-08';
@@ -16,6 +16,7 @@ function slots(date){
  return fixed.concat(summer?[['14:00','14:45'],['14:50','15:35'],['15:55','16:40'],['16:45','17:30'],['19:00','19:45'],['19:50','20:35'],['20:40','21:25']]:[['13:30','14:15'],['14:20','15:05'],['15:25','16:10'],['16:15','17:00'],['18:30','19:15'],['19:20','20:05'],['20:10','20:55']]);
 }
 function daySchedule(date,overrides={},changes={}){
+ const {courses}=catalog.get();
  stamp(date); let source=date, notice='',off=false;
  if(date==='2026-09-20'){source='2026-09-21';notice='补第2周星期一课程';}
  if(date==='2026-10-10'){source='2026-10-05';notice='补第4周星期一课程';}

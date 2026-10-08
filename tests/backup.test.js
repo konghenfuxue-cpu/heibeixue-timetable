@@ -6,7 +6,7 @@ const storage=require('../miniprogram/utils/storage');
 values.overrides={'2026-10-08':{type:'off',note:'停课'}};
 values.courseChanges={'2026-09-21|c0':{source:'2026-09-21',courseId:'c0',type:'cancel'}};
 assert.equal(storage.read().overrides['2026-10-08'].note,'停课');
-assert.equal(values.scheduleData.version,1);
+assert.equal(values.scheduleData.version,2);
 const exported=backup.encode(storage.read());
 assert.deepEqual(backup.decode(exported).changes,values.courseChanges);
 assert.throws(()=>backup.decode('bad json'));

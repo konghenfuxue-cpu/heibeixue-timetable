@@ -16,5 +16,6 @@
         "value": "tests"
       }
     ]
-  }
+  },
+  "cloudfunctionRoot": "cloudfunctions/"
 }

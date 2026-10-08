@@ -1,4 +1,5 @@
 const {daySchedule,today,shift,stamp,weekDates,nextCourse}=require('../../utils/schedule');
+const catalog=require('../../utils/catalog');
 const {pending}=require('../../data/courses');
 const storage=require('../../utils/storage');
 Page({
@@ -7,7 +8,7 @@ Page({
  onHide(){clearInterval(this.timer);},onUnload(){clearInterval(this.timer);},
  refresh(){this.load(this.data.isToday?today():this.data.date);},
  load(date){try{
-  const {overrides,changes}=storage.read();const s=daySchedule(date,overrides,changes);
+  const {overrides,changes}=storage.read();const s=daySchedule(date,overrides,changes);s.pending=catalog.get().pending;
   const now=new Date(Date.now()+8*3600000).toISOString().slice(11,16),isToday=date===today();
   s.courses.forEach(c=>{const [a,b]=c.time.split('—');c.status=isToday?(now<a?'待上课':now<b?'上课中':'已结束'):'';});
   const focus=nextCourse(date,isToday?now:'00:00',overrides,changes);

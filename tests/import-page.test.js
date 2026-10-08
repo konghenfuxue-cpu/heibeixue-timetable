@@ -1,0 +1,14 @@
+const assert=require('node:assert/strict');
+const values={};let page,confirm=true,toast='';
+global.Page=p=>{page=p;};global.wx={getStorageSync:k=>values[k],setStorageSync:(k,v)=>{values[k]=JSON.parse(JSON.stringify(v));},removeStorageSync:k=>delete values[k],showToast:r=>{toast=r.title;},showModal:r=>{if(r.success)r.success({confirm});},switchTab:()=>{},navigateTo:()=>{}};
+require('../miniprogram/pages/import/index');
+const p=Object.assign({},page,{data:JSON.parse(JSON.stringify(page.data)),setData(r){Object.assign(this.data,r);}});
+p.add();p.save();assert.equal(toast,'请先逐条核对并勾选确认');assert(!values.scheduleData);
+p.edit({currentTarget:{dataset:{index:0,field:'name'}},detail:{value:'示例课程'}});
+p.edit({currentTarget:{dataset:{index:0,field:'weekday'}},detail:{value:'1'}});
+p.confirm({detail:{value:['checked']}});confirm=false;p.save();assert(!values.scheduleData);
+confirm=true;p.save();assert(values.scheduleData.timetable);assert(values.backupBeforeImport);
+const before=JSON.stringify(values.scheduleData);p.add();p.confirm({detail:{value:['checked']}});p.save();assert.equal(JSON.stringify(values.scheduleData),before);
+p.setData({courses:[{name:'课程',weekday:1,start:1,end:2,first:1,last:17,parity:'all',parityIndex:0}],confirmed:true});p.parity({currentTarget:{dataset:{index:0}},detail:{value:'2'}});assert.equal(p.data.courses[0].parity,'even');assert(!p.data.confirmed);
+p.confirm({detail:{value:['checked']}});p.remove({currentTarget:{dataset:{index:0}}});assert(!p.data.confirmed);
+console.log('识别核对页通过：未确认、取消、无效数据不覆盖；保存、字段修改重新确认');
