@@ -5,7 +5,7 @@
   "description": "黑背雪每日课表微信小程序",
   "license": "MIT",
   "scripts": {
-    "test": "node tests/schedule.test.js && node tests/pages.test.js && node tests/wxml.test.js && node tests/backup.test.js && node tests/timetable-import.test.js && node tests/recognition-service.test.js && node tests/import-page.test.js"
+    "test": "node tests/schedule.test.js && node tests/pages.test.js && node tests/wxml.test.js && node tests/backup.test.js && node tests/timetable-import.test.js && node tests/recognition-service.test.js && node tests/import-page.test.js && node tests/offline-import.test.js"
   },
   "engines": {
     "node": ">=20"

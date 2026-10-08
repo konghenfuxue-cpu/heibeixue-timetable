@@ -1,0 +1,15 @@
+const assert=require('node:assert/strict');
+const offline=require('../miniprogram/utils/offline-import');
+const course={id:'import0',name:'示例课程',weekday:1,start:1,end:2,first:1,last:17,parity:'all'};
+const json=JSON.stringify({format:offline.FORMAT,term:offline.TERM,version:1,courses:[course]});
+assert.equal(offline.decode(json).courses[0].name,course.name);
+assert.throws(()=>offline.decode(json.replace(offline.TERM,'2027-2028-1')));
+assert.throws(()=>offline.decode('{}'));
+assert.throws(()=>offline.decode(json.replace('"weekday":1','"weekday":0')));
+let page,stored=false;
+global.Page=p=>page=p;
+global.wx={chooseMessageFile:r=>r.success({tempFiles:[{path:'offline.json',name:'offline.json',size:json.length}]}),getFileSystemManager:()=>({readFile:r=>r.success({data:json})}),setStorageSync:()=>{stored=true;},showModal:()=>{throw Error('不应调用云端或弹出保存');}};
+require('../miniprogram/pages/import/index');
+const p=Object.assign({},page,{data:{...page.data,confirmed:true},setData(r){Object.assign(this.data,r);}});
+p.selectOffline();assert.equal(p.data.courses.length,1);assert.equal(p.data.confirmed,false);assert.equal(p.data.needOcr,false);assert.equal(stored,false);
+console.log('离线导入通过：无需wx.cloud，候选核对前不写入；无效格式、学期和课程被拒绝');
