@@ -4,7 +4,7 @@ function ranges(text){
  const spans=[];for(const part of text.split(/[,，、]/)){const m=part.match(/^(\d+)(?:[-—~至](\d+))?$/);if(m)spans.push([Number(m[1]),Number(m[2]||m[1])]);}return spans;
 }
 function parseColumn(text,weekday){
- text=String(text).replace(/\r/g,'').replace(/[–－]/g,'-');
+ text=String(text).replace(/\r/g,'').replace(/[–－]/g,'-').replace(/教\s*师\s*[:：]/g,'教师:').replace(/场\s*地\s*[:：]/g,'场地:').replace(/校\s*区\s*[:：]/g,'校区:');
  // Course blocks commonly use '(1-2节)1-17周(单)' after the name.
  const re=/[（(]\s*(\d+)\s*(?:[-—~至]\s*(\d+))?\s*节\s*[)）]\s*([\d\s,，、\-—~至]+)\s*周\s*(?:[（(]([单双])[)）])?/g;
  const hits=[];let m;while((m=re.exec(text)))hits.push({m,pos:m.index,end:re.lastIndex});
@@ -23,7 +23,7 @@ function parseColumn(text,weekday){
   const details=text.slice(hit.end,i+1<hits.length?hits[i+1].nameStart:text.length);
   const field=(label)=>{const r=details.match(new RegExp('(?:'+label+')'+'\\s*[:：]\\s*([^/\\n]+(?:\\n(?![^/\\n]+[:：])[^/\\n]+)*)'));return r?r[1].replace(/\s+/g,'').replace(/[★☆][\s\S]*$/,''):'';};
   const spans=ranges(m[3].replace(/\s+/g,''));
-  for(const [first,last]of spans)out.push({name,weekday:weekday||day(details),start:Number(m[1]),end:Number(m[2]||m[1]),first,last,parity:m[4]==='单'?'odd':m[4]==='双'?'even':'all',room:field('场地|教室'),teacher:field('教师'),campus:field('校区')});
+  for(const [first,last]of spans)out.push({name,weekday:weekday||day(details),start:Number(m[1]),end:Number(m[2]||m[1]),first,last,parity:m[4]==='单'?'odd':m[4]==='双'?'even':'all',room:field('场地|教室'),teacher:field('教师'),campus:field('校区').replace(/校区$/,'')});
  }
  return out;
 }
@@ -43,10 +43,10 @@ function fromPdf(data){
  for(const page of pages){const h=(page.Texts||[]).map(t=>({x:t.x,y:t.y,text:(t.R||[]).map(r=>decodeURIComponent(r.T)).join('')})).filter(t=>/^(?:星期|周)[一二三四五六日天]$/.test(t.text.trim())).sort((a,b)=>a.x-b.x);if(h.length===7){headers=h;headerPage=page;break;}}
  if(headers.length!==7)return result([],['未找到完整的周一至周日表头；可改用表格 OCR，或上传完整截图。']);
  const gap=(headers[6].x-headers[0].x)/6,cols=Array.from({length:7},()=>[]);
- for(const page of pages){const per=Array.from({length:7},()=>[]);for(const t of page.Texts||[]){if(page===headerPage&&t.y<=Math.max(...headers.map(h=>h.y))+0.15)continue;const x=t.x;const index=Math.floor((x-(headers[0].x-gap*0.65))/gap);if(index<0||index>6)continue;per[index].push({x,y:t.y,text:(t.R||[]).map(r=>decodeURIComponent(r.T)).join('')});}
+ for(const page of pages){const per=Array.from({length:7},()=>[]);for(const t of page.Texts||[]){if(page===headerPage&&t.y<=Math.max(...headers.map(h=>h.y))+0.15)continue;const x=t.x;const index=Math.floor((x-(headers[0].x-gap*0.5))/gap);if(index<0||index>6)continue;per[index].push({x,y:t.y,text:(t.R||[]).map(r=>decodeURIComponent(r.T)).join('')});}
   per.forEach((items,index)=>{items.sort((a,b)=>a.y-b.y||a.x-b.x);const lines=[];for(const t of items){const last=lines[lines.length-1];if(last&&Math.abs(last.y-t.y)<0.15)last.text+=t.text;else lines.push({y:t.y,text:t.text});}cols[index].push(lines.map(l=>l.text).join('\n'));});}
  const courses=cols.flatMap((texts,i)=>parseColumn(texts.join('\n'),day(headers[i].text)));
- return result(courses,['已按 PDF 表头定位星期，请对照原文件核对长课程名、跨页课程和单双周。未排课程需另行补充。']);
+ return result(courses,['已按 PDF 表头定位星期，请对照原文件核对课程名、单双周、教师姓名和教室；PDF文字映射可能与可见字形不同。未排课程需另行补充。']);
 }
 module.exports={parseColumn,fromTables,fromPdf};
 
