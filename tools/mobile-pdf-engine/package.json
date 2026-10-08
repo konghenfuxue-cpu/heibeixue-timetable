@@ -1,0 +1,15 @@
+{
+  "name": "heibeixue-mobile-pdf-build",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "node build.cjs"
+  },
+  "devDependencies": {
+    "abort-controller": "3.0.0",
+    "core-js-pure": "^3.49.0",
+    "esbuild": "0.28.2",
+    "pdfjs-dist": "6.4.299",
+    "web-streams-polyfill": "4.2.0"
+  }
+}

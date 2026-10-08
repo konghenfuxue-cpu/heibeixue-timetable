@@ -7,3 +7,5 @@ node_modules/
 Thumbs.db
 work/
 backups/
+
+tools/mobile-pdf-engine/generated/

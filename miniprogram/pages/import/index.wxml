@@ -1,14 +1,15 @@
 <view class="page import-page">
  <view class="eyebrow">IMPORT TIMETABLE</view><view class="title">自动识别课表</view>
- <view class="muted">文字PDF可在电脑离线转换后导入；手机直接识别需可选云服务。识别后逐条核对，再保存。</view>
+ <view class="muted">文字版PDF在手机本地提取，无需电脑或云开发，文件不上传。提取后逐条核对，再保存。</view>
  <view class="notice">当前学期：2026-09-14 至 2027-01-08。导入不会自动更改校历和作息。更换学期需要同时更新设置。</view>
- <button class="primary" disabled="{{busy}}" bindtap="selectOffline">导入离线识别 JSON（无需云开发）</button>
- <view class="muted">先按项目离线说明在电脑转换文字PDF，再把JSON发送至微信。文件仅在本机读取。</view>
+ <button class="primary" disabled="{{busy}}" bindtap="selectPdf">从微信聊天导入文字版 PDF</button>
+ <view class="muted">先把下载的PDF发送到文件传输助手等聊天，再在这里选择。支持与示例相似的周课表；图片和扫描PDF需要OCR。</view>
  <view class="section">可选：云端直接识别</view>
  <button class="secondary" disabled="{{busy}}" bindtap="selectFile">云端识别 PDF / 图片</button>
  <button class="secondary" disabled="{{busy}}" bindtap="selectImage">从相册或拍照识别</button>
  <button class="secondary" disabled="{{busy}}" bindtap="connect">检查识别服务连接</button>
- <view class="muted">仅云端识别需要开通云环境；离线导入、手动录入和每日课表均无需云开发。</view>
+ <view class="muted">仅上方云端识别需要开通云环境。本地PDF提取失败不会自动上传或调用OCR。</view>
+ <button class="secondary" disabled="{{busy}}" bindtap="selectOffline">导入识别结果 JSON（可选）</button>
  <view wx:if="{{fileName}}" class="card"><view class="course">{{fileName}}</view><view class="muted">{{method}} · 共 {{courses.length}} 条候选排课</view><button wx:if="{{needOcr}}" class="secondary" disabled="{{busy}}" bindtap="ocr">改用 OCR 识别</button><view wx:if="{{pageCount > 1}}"><view class="muted">PDF共 {{pageCount}} 页；OCR每次识别一页，追加结果仍需去重核对。</view><input class="field" type="number" value="{{page}}" bindinput="pageInput" placeholder="要识别的页码"/><button class="secondary" disabled="{{busy}}" bindtap="appendPage">追加识别指定页</button></view></view>
  <view wx:for="{{warnings}}" wx:key="*this" class="notice">{{item}}</view>
  <view wx:if="{{courses.length}}" class="section">核对识别结果</view>
