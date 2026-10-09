@@ -1,5 +1,12 @@
 # 黑背雪 · 每日课表
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-8bb0c3?style=flat-square&labelColor=3d4a57)](LICENSE)
+[![自动测试](https://img.shields.io/github/actions/workflow/status/konghenfuxue-cpu/heibeixue-timetable/test.yml?branch=main&style=flat-square&label=Tests&labelColor=3d4a57)](https://github.com/konghenfuxue-cpu/heibeixue-timetable/actions/workflows/test.yml)
+[![微信小程序](https://img.shields.io/badge/Platform-WeChat_Mini_Program-263e50?style=flat-square&logo=wechat&logoColor=white&labelColor=3d4a57)](#开始使用)
+[![PDF: 手机本地提取](https://img.shields.io/badge/PDF-%E6%89%8B%E6%9C%BA%E6%9C%AC%E5%9C%B0%E6%8F%90%E5%8F%96-5c8b84?style=flat-square&labelColor=3d4a57)](OFFLINE_IMPORT.md)
+[![Cloud: 可选](https://img.shields.io/badge/Cloud-%E5%8F%AF%E9%80%89-8bb0c3?style=flat-square&labelColor=3d4a57)](CLOUD_IMPORT.md)
+[![GitHub Stars](https://img.shields.io/github/stars/konghenfuxue-cpu/heibeixue-timetable?style=flat-square&label=Stars&logo=github&logoColor=white&labelColor=3d4a57&color=263e50)](https://github.com/konghenfuxue-cpu/heibeixue-timetable/stargazers)
+
 一个可在本地查看和调整课程的微信原生小程序；文字PDF支持手机本地提取，无需电脑或云开发；图片／扫描件可选择部署云识别，基础课表功能无需服务器。打开即可查看当天课程、下一节课和整周安排，支持单双周、季节作息、假期补课以及个人调课。
 
 本项目与绍兴大学有关，最初用于按绍兴大学的课程表和校历展示个人每日课程。项目使用“黑背雪”个人品牌，由个人维护，非绍兴大学官方小程序；公开版本供参考和自行适配。
