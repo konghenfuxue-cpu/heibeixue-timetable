@@ -17,6 +17,9 @@ function load(file){file=path.resolve(file);if(!file.startsWith(root+path.sep))t
  assert.equal(writes,0);assert.equal(network,0);
  await assert.rejects(()=>local.recognize({path:'large.pdf',size:8*1024*1024}),/7MB/);
  context.bytes=[1,2,3];await assert.rejects(()=>local.recognize({path:'invalid.pdf',size:3}),/PDF/);
+ context.bytes=Array.from(Buffer.from('%PDF-1.7\ninvalid\n%%EOF'));await assert.rejects(()=>local.recognize({path:'broken.pdf',size:context.bytes.length}),/PDF/);
+ context.bytes=Array.from(fs.readFileSync(path.join(__dirname,'fixtures/encrypted-timetable.pdf')));await assert.rejects(()=>local.recognize({path:'encrypted.pdf',size:context.bytes.length}),/加密/);
+ context.bytes=Array.from(input);assert.equal((await local.recognize({path:'again.pdf',size:input.length})).courses.length,2);
  assert.equal(writes,0);assert.equal(network,0);
  assert.equal(fs.readFileSync(root+'/utils/timetable-parser.js','utf8'),fs.readFileSync(path.resolve(root,'../cloudfunctions/recognizeTimetable/parser.js'),'utf8'));
  console.log('手机本地PDF通过：无DOM、Node、Worker、fetch或wx.cloud环境读取中文跨页课表；不联网、不写入，拒绝超大和无效文件');
