@@ -19,7 +19,7 @@ function daySchedule(date,overrides={},changes={}){
  const {courses}=catalog.get();
  stamp(date); let source=date, notice='',off=false;
  if(date==='2026-09-20'){source='2026-09-21';notice='补第2周星期一课程';}
- if(date==='2026-10-10'){source='2026-10-05';notice='补第4周星期一课程';}
+ if(date==='2026-10-10'){source='2026-10-06';notice='补第4周星期二课程（双周二）';}
  if(date>='2026-09-25'&&date<='2026-09-27'){off=true;notice='中秋放假';}
  if(date>='2026-10-01'&&date<='2026-10-07'){off=true;notice='国庆放假';}
  if(date==='2027-01-01'){off=true;notice='元旦';}
