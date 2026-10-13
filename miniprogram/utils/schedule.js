@@ -31,7 +31,7 @@ function daySchedule(date,overrides={},changes={}){
  const inTerm=date>=START&&date<=END;
  if(!inTerm){off=true;notice=date<START?'学期尚未开始':date>='2027-01-11'&&date<='2027-01-20'?'期末考试（请查看考试通知）':'本学期课程已结束';}
  const time=slots(date);
- let list=off?[]:courses.filter(c=>c.weekday===weekday&&week>=c.first&&week<=c.last&&(c.parity==='all'||(week%2===1?'odd':'even')===c.parity)).map(c=>Object.assign({},c,{weeks:c.first+'—'+c.last+'周'+(c.parity==='odd'?' · 单周':c.parity==='even'?' · 双周':''),origin:date}));
+ let list=off?[]:courses.filter(c=>c.date?c.date===date:c.weekday===weekday&&week>=c.first&&week<=c.last&&(c.parity==='all'||(week%2===1?'odd':'even')===c.parity)).map(c=>Object.assign({},c,{weeks:c.first+'—'+c.last+'周'+(c.parity==='odd'?' · 单周':c.parity==='even'?' · 双周':''),origin:date}));
  list=list.filter(c=>!changes[date+'|'+c.id]);
  if(inTerm&&!(o&&o.type==='off'))Object.keys(changes).forEach(key=>{
   const change=changes[key];
@@ -42,10 +42,10 @@ function daySchedule(date,overrides={},changes={}){
   if(!Number.isInteger(change.start)||!Number.isInteger(change.end)||change.start<1||change.end>11||change.end<change.start)return;
   list.push(Object.assign({},original,{start:change.start,end:change.end,room:change.room||original.room,origin:change.source,adjusted:true}));
  });
- list=list.map(c=>Object.assign({},c,{uid:c.origin+'|'+c.id,color:colorFor(c.name),time:time[c.start-1][0]+'—'+time[c.end-1][1],period:'第'+c.start+'—'+c.end+'节'}));
- list.forEach(c=>{c.conflict=list.some(other=>other.uid!==c.uid&&other.start<=c.end&&other.end>=c.start);});
+ list=list.map(c=>Object.assign({},c,{uid:c.origin+'|'+c.id,color:colorFor(c.name),time:!c.adjusted&&c.timeStart?c.timeStart+'—'+c.timeEnd:time[c.start-1][0]+'—'+time[c.end-1][1],period:!c.adjusted&&c.periodLabel?c.periodLabel:'第'+c.start+'—'+c.end+'节'}));
+ list.forEach(c=>{c.conflict=list.some(other=>other.uid!==c.uid&&other.time.split('—')[0]<c.time.split('—')[1]&&other.time.split('—')[1]>c.time.split('—')[0]);});
  if(off&&list.length)notice+=' · 有手动安排的课程';
- list.sort((a,b)=>a.start-b.start);
+ list.sort((a,b)=>a.time.localeCompare(b.time)||a.start-b.start);
  return {date,week,weekday,notice,courses:list,inTerm,season:Number(date.slice(5,7))>=5&&Number(date.slice(5,7))<=9?'夏季作息':'冬季作息'};
 }
 function colorFor(name){const palette=['#263e50','#6e6287','#806249','#526d60','#87596b','#516f96','#7c6746'];let hash=0;for(let i=0;i<name.length;i++)hash=(hash+name.charCodeAt(i)*(i+1))%palette.length;return palette[hash];}
