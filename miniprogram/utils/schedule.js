@@ -15,8 +15,22 @@ function slots(date){
  const fixed=[['08:00','08:45'],['08:50','09:35'],['09:55','10:40'],['10:45','11:30']];
  return fixed.concat(summer?[['14:00','14:45'],['14:50','15:35'],['15:55','16:40'],['16:45','17:30'],['19:00','19:45'],['19:50','20:35'],['20:40','21:25']]:[['13:30','14:15'],['14:20','15:05'],['15:25','16:10'],['16:15','17:00'],['18:30','19:15'],['19:20','20:05'],['20:10','20:55']]);
 }
-function daySchedule(date,overrides={},changes={}){
+function officialChanges(courses){
+ const changes={};
+ for(const move of require('../data/course-updates').moves||[]){
+  const sourceStamp=stamp(move.source);stamp(move.target);
+  const week=Math.floor((sourceStamp-stamp(START))/DAY/7)+1,weekday=new Date(sourceStamp).getUTCDay()||7;
+  for(const c of courses){
+   if(c.name!==move.name||c.start!==move.sourceStart||c.end!==move.sourceEnd)continue;
+   if(c.date?c.date!==move.source:c.weekday!==weekday||week<c.first||week>c.last||(c.parity!=='all'&&c.parity!==(week%2?'odd':'even')))continue;
+   changes[move.source+'|'+c.id]={source:move.source,courseId:c.id,type:'move',target:move.target,start:move.start,end:move.end,room:move.room||c.room};
+  }
+ }
+ return changes;
+}
+function daySchedule(date,overrides={},changes={},includeOfficial=true){
  const {courses}=catalog.get();
+ if(includeOfficial)changes=Object.assign({},officialChanges(courses),changes);
  stamp(date); let source=date, notice='',off=false;
  if(date==='2026-09-20'){source='2026-09-21';notice='补第2周星期一课程';}
  if(date==='2026-10-10'){source='2026-10-06';notice='补第4周星期二课程（双周二）';}
@@ -37,14 +51,14 @@ function daySchedule(date,overrides={},changes={}){
   const change=changes[key];
   if(change.type!=='move'||change.target!==date)return;
   // 单门调整按原始课程日查找，不递归应用其他单门调整。
-  const original=daySchedule(change.source,overrides).courses.find(c=>c.id===change.courseId);
+  const original=daySchedule(change.source,overrides,{},false).courses.find(c=>c.id===change.courseId);
   if(!original)return;
   if(!Number.isInteger(change.start)||!Number.isInteger(change.end)||change.start<1||change.end>11||change.end<change.start)return;
   list.push(Object.assign({},original,{start:change.start,end:change.end,room:change.room||original.room,origin:change.source,adjusted:true}));
  });
  list=list.map(c=>Object.assign({},c,{uid:c.origin+'|'+c.id,color:colorFor(c.name),time:!c.adjusted&&c.timeStart?c.timeStart+'—'+c.timeEnd:time[c.start-1][0]+'—'+time[c.end-1][1],period:!c.adjusted&&c.periodLabel?c.periodLabel:'第'+c.start+'—'+c.end+'节'}));
  list.forEach(c=>{c.conflict=list.some(other=>other.uid!==c.uid&&other.time.split('—')[0]<c.time.split('—')[1]&&other.time.split('—')[1]>c.time.split('—')[0]);});
- if(off&&list.length)notice+=' · 有手动安排的课程';
+ if(off&&list.length)notice+=' · 有调课安排的课程';
  list.sort((a,b)=>a.time.localeCompare(b.time)||a.start-b.start);
  return {date,week,weekday,notice,courses:list,inTerm,season:Number(date.slice(5,7))>=5&&Number(date.slice(5,7))<=9?'夏季作息':'冬季作息'};
 }
@@ -52,7 +66,7 @@ function colorFor(name){const palette=['#263e50','#6e6287','#806249','#526d60','
 function weekDates(date){const offset=(new Date(stamp(date)).getUTCDay()+6)%7;return Array.from({length:7},(_,i)=>{const d=shift(date,i-offset);return {date:d,day:d.slice(8),label:'一二三四五六日'[i],isToday:d===today()};});}
 function validateChange(change,overrides={}){
  stamp(change.source);
- if(!daySchedule(change.source,overrides).courses.some(c=>c.id===change.courseId))throw Error('原日期没有这门课程，请重新选择');
+ if(!daySchedule(change.source,overrides,{},false).courses.some(c=>c.id===change.courseId))throw Error('原日期没有这门课程，请重新选择');
  if(change.type==='cancel')return;
  if(change.type!=='move')throw Error('课程调整类型错误');
  stamp(change.target);
